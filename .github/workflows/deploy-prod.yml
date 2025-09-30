@@ -27,8 +27,8 @@ jobs:
 
       - name: S3 기존 파일들 삭제 후 새로 업로드
         run: |
-          aws s3 rm --resursive s3://dev-cicd-sandbox
-          aws s3 cp ./dist s3://dev-cicd-sandbox/ --recursive
+          aws s3 rm --recursive s3://prod-cicd-sandbox
+          aws s3 cp ./dist s3://prod-cicd-sandbox/ --recursive
 
       - name: CloudFront 캐시 무효화
         run: aws cloudfront create-invalidation --distribution-id E3P9R8VPD08UJW --paths "/*"

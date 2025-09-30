@@ -132,7 +132,82 @@ $ git push -u origin dev
 배포, 개발 각 파일 생성
 
 - deploy-dev.yml
+
+```yml
+name: Deploy To Dev S3
+
+on:
+  push:
+    branches:
+      - dev
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Github Repository 파일 불러오기
+        uses: actions/checkout@v4
+
+      - name: 의존성 설치
+        run: npm install
+
+      - name: 빌드
+        run: npm run build
+
+      - name: AWS 인증 절차
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-region: ap-northeast-2
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{secrets.AWS_SECRET_ACCESS_KEY}}
+
+      - name: S3 기존 파일들 삭제 후 새로 업로드
+        run: |
+          aws s3 rm --recursive s3://dev-cicd-sandbox
+          aws s3 cp ./dist s3://dev-cicd-sandbox/ --recursive
+
+      - name: CloudFront 캐시 무효화
+        run: aws cloudfront create-invalidation --distribution-id E2BMCVCA4L9IAV --paths "/*"
+```
+
 - deploy-prod.yml
+
+```yml
+name: Deploy To Prod S3
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Github Repository 파일 불러오기
+        uses: actions/checkout@v4
+
+      - name: 의존성 설치
+        run: npm install
+
+      - name: 빌드
+        run: npm run build
+
+      - name: AWS 인증 절차
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-region: ap-northeast-2
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{secrets.AWS_SECRET_ACCESS_KEY}}
+
+      - name: S3 기존 파일들 삭제 후 새로 업로드
+        run: |
+          aws s3 rm --recursive s3://prod-cicd-sandbox
+          aws s3 cp ./dist s3://prod-cicd-sandbox/ --recursive
+
+      - name: CloudFront 캐시 무효화
+        run: aws cloudfront create-invalidation --distribution-id E3P9R8VPD08UJW --paths "/*"
+```
 
 <br>
 
