@@ -127,11 +127,11 @@ $ git push -u origin dev
 
 <br>
 
-### (5) CI/CD
+## 7️⃣ CI/CD
 
-배포, 개발 각 파일 생성
+배포/개발 환경별 워크플로우를 나눈다.
 
-- deploy-dev.yml
+### 📄 deploy-dev.yml
 
 ```yml
 name: Deploy To Dev S3
@@ -170,7 +170,9 @@ jobs:
         run: aws cloudfront create-invalidation --distribution-id E2BMCVCA4L9IAV --paths "/*"
 ```
 
-- deploy-prod.yml
+<br>
+
+### 📄 deploy-prod.yml
 
 ```yml
 name: Deploy To Prod S3
@@ -211,29 +213,86 @@ jobs:
 
 <br>
 
-### (6) IAM
+## 8️⃣ IAM & GitHub Secrets 설정
 
-#### IAM > 사용자 > 생성
+### IAM 사용자 생성
 
-🚀 배포 환경
-
-![]()
-
-👩🏻‍💻 개발 환경
+#### 배포 환경 & 개발 환경 공통 사용자 생성
 
 ![](./public/iam.png)
 
 <br>
 
-#### IAM > 사용자 > 보안 자격 증명 > 액세스 키 발급
+### 액세스 키 발급
+
+#### IAM > 사용자 > 보안 자격 증명
 
 ![](./public/iam2.png)
 ![](./public/iam3.png)
 
 <br>
 
-#### GitHub Secrets에 엑세스 키 등록
+### GitHub Secrets 등록
 
-🚀 배포 환경 & 👩🏻‍💻 개발 환경
+#### `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY` 등록
 
 ![](./public/githubsecrets.png)
+
+<br>
+
+## 🔐 Access Key 사용 정리
+
+### 🔑 배포/개발 환경에서 동일 Access Key를 사용하는 이유
+
+#### 1. IAM 사용자 단위 발급
+
+- Access Key는 IAM 사용자(User) 기준으로 발급된다.
+- 같은 사용자에게 prod/dev 권한을 모두 부여하면 동일 키로 접근 가능하다.
+
+#### 2.권한 정책 통합
+
+- 하나의 사용자에 S3, CloudFront 권한을 동시에 주면 두 환경을 모두 관리할 수 있다.
+
+#### 3. 관리 단순화
+
+- dev/prod별로 키를 따로 발급하면 관리 포인트가 늘어난다.
+- 실습 단계에서는 하나의 키만 써도 충분히 편리하다.
+
+💡 실습에서는 편의를 위해 동일 Access Key를 사용했지만,  
+실제 운영 환경에서는 dev/prod를 분리하는 것이 보안상 안전하다고 한다.
+
+<br>
+
+### ⚠️ 운영 환경에서의 권장 사항
+
+- 보안 강화를 위해 환경별 IAM 사용자 분리가 권장된다.
+- dev/prod를 분리하면 키 유출 시 피해 범위를 줄일 수 있다.
+- 원칙: 최소 권한 부여(Principle of Least Privilege)
+
+💡 실습에서는 편의상 동일 Access Key를 사용했지만,
+운영 환경에서는 dev/prod를 분리하는 것이 보안상 안전하다.
+
+<br>
+
+## 9️⃣ 배포 과정 확인
+
+```bash
+# dev 작업 완료 후
+$ git checkout main
+$ git merge dev
+$ git push
+```
+
+- dev 브랜치 → 개발용 배포
+- main 브랜치 → 운영용 배포
+
+<br>
+
+### GitHub Actions 실행 결과
+
+![](./public/actions.png)
+
+<br>
+
+> 💡 이제 단순히 코드를 push만 해도 `S3 + CloudFront + ACM`까지 자동으로 배포된다.  
+> 프로젝트 초반부터 환경을 분리해두면, 실서비스 안정성과 개발 편의성을 동시에 챙길 수 있다.
