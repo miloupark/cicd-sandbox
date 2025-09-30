@@ -126,3 +126,39 @@ $ git push -u origin dev
 - [개발 환경: dev.cicdsandbox.o-r.kr](https://dev.cicdsandbox.o-r.kr/)
 
 <br>
+
+### (5) CI/CD
+
+배포, 개발 각 파일 생성
+
+- deploy-dev.yml
+- deploy-prod.yml
+
+<br>
+
+### (6) IAM
+
+#### IAM > 사용자 > 생성
+
+🚀 배포 환경
+
+![]()
+
+👩🏻‍💻 개발 환경
+
+![](./public/iam.png)
+
+<br>
+
+#### IAM > 사용자 > 보안 자격 증명 > 액세스 키 발급
+
+![](./public/iam2.png)
+![](./public/iam3.png)
+
+<br>
+
+#### GitHub Secrets에 엑세스 키 등록
+
+🚀 배포 환경 & 👩🏻‍💻 개발 환경
+
+![](./public/githubsecrets.png)
